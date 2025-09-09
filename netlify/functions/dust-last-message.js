@@ -12,36 +12,6 @@ exports.handler = async (event, context) => {
       }
     );
 
-    const reader = response.body.getReader();
-    let lastMessage = null;
-    let buffer = '';
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      
-      buffer += new TextDecoder().decode(value);
-      const lines = buffer.split('\n');
-      buffer = lines.pop() || '';
-      
-      for (const line of lines) {
-        if (line.startsWith('data: ')) {
-          try {
-            const data = JSON.parse(line.slice(6));
-            if (data.type === 'agent_message_success') {
-              lastMessage = {
-                content: data.message.content,
-                messageId: data.messageId,
-                timestamp: data.created
-              };
-            }
-          } catch (e) {
-            // Skip invalid JSON
-          }
-        }
-      }
-    }
-
     return {
       statusCode: 200,
       headers: {
